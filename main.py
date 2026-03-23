@@ -54,7 +54,7 @@ async def custom_swagger_ui_html():
     return get_swagger_ui_html(
         title=app.title,
         openapi_url=app.openapi_url,
-        swagger_favicon_url="./favicon.ico"
+        swagger_favicon_url=favicon_path
     )
 
 @app.get("/favicon.ico", include_in_schema=False)
