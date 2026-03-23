@@ -20,9 +20,9 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="Neon DB Test API",
-    description="API for testing Neon DB with FastAPI",
-    version="1.0.0",
+    title="AJK Docs",
+    description="Anthony's API Documentation",
+    version="1.0.1",
     lifespan=lifespan,
     docs_url=None
     )
