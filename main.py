@@ -59,4 +59,4 @@ async def custom_swagger_ui_html():
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return FileResponse("/static/favicon.ico")
+    return FileResponse(favicon_path)
