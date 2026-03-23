@@ -1,0 +1,14 @@
+FROM python:slim
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+COPY . .
+
+EXPOSE 4000
+
+# CMD ["uvicorn", "main:app", "--reload", "--ssl-keyfile", "./localhost+3-key.pem", "--ssl-certfile", "./localhost+3.pem", "--host", "0.0.0.0", "--port", "4000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-4000}"]
+
