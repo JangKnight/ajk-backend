@@ -20,6 +20,43 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
+    title="Neon DB Test API",
+    description="API for testing Neon DB with FastAPI",
+    version="1.0.0",
     lifespan=lifespan,
     docs_url=None
     )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"],
+)
+
+app.include_router(posts.router)
+
+
+@app.get("/healthy", include_in_schema=False)
+async def healthy():
+    return {
+        "status": "healthy",
+        "message": "api is healthy and running"
+            }
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        title=app.title,
+        openapi_url=app.openapi_url,
+        swagger_favicon_url="./favicon.ico"
+    )
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse(favicon_path)
