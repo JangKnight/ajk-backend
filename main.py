@@ -9,7 +9,7 @@ from routers import posts
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 favicon_path = os.path.join(base_dir, "static", "favicon.ico")
@@ -24,7 +24,8 @@ app = FastAPI(
     description="Anthony's API Documentation",
     version="1.0.1",
     lifespan=lifespan,
-    docs_url=None
+    docs_url=None,
+    redoc_url=None
     )
 
 app.add_middleware(
@@ -56,6 +57,15 @@ async def custom_swagger_ui_html():
         openapi_url=app.openapi_url,
         swagger_favicon_url="/favicon.ico"
     )
+
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(
+        openapi_url=app.openapi_url,
+        title=app.title,
+        redoc_favicon_url="/favicon.ico"
+    )
+
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
