@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from models import Posts
 from contextlib import asynccontextmanager
 from database import SessionLocal, engine, Base, init_db, get_db
-from routers import posts
+from routers import posts, auth
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -28,19 +28,35 @@ app = FastAPI(
     redoc_url=None,
     )
 
+# -----Configs-----
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://192.168.1.229:5173",
+    "http://localhost",
+    "http://192.168.1.229",
+    "https://192.168.1.229",
+    "https://localhost",
+    "*"
+]
+allowed_hosts = ["192.168.1.229", "localhost"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# app.add_middleware(
-#     TrustedHostMiddleware,
-#     allowed_hosts=["*"],
-# )
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=allowed_hosts,
+)
+# -----End of Configs-----
 
 app.include_router(posts.router)
+app.include_router(auth.router)
 
 class ConnectionManager:
     def __init__(self):
