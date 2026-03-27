@@ -14,6 +14,16 @@ from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 base_dir = os.path.dirname(os.path.abspath(__file__))
 favicon_path = os.path.join(base_dir, "static", "favicon.ico")
 
+
+def parse_csv_env(name: str, default: str) -> list[str]:
+    raw_value = os.getenv(name, default)
+    return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+def parse_bool_env(name: str, default: bool) -> bool:
+    raw_value = os.getenv(name, str(default)).strip().lower()
+    return raw_value in {"1", "true", "yes", "on"}
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
@@ -29,22 +39,38 @@ app = FastAPI(
     )
 
 # -----Configs-----
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://192.168.1.229:5173",
-    "http://localhost",
-    "http://192.168.1.229",
-    "https://192.168.1.229",
-    "https://localhost",
-    "*"
-]
-allowed_hosts = ["192.168.1.229", "localhost"]
+default_cors_origins = ",".join(
+    [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://192.168.1.229:5173",
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://192.168.1.229",
+        "https://localhost",
+        "https://192.168.1.229",
+        "https://anthonysjhenry.vercel.app",
+    ]
+)
+default_allowed_hosts = ",".join(
+    [
+        "localhost",
+        "127.0.0.1",
+        "192.168.1.229",
+        "ajk-backend.onrender.com",
+        "*.onrender.com",
+    ]
+)
+origins = parse_csv_env("CORS_ALLOW_ORIGINS", default_cors_origins)
+origin_regex = os.getenv("CORS_ALLOW_ORIGIN_REGEX", r"https://.*\.vercel\.app")
+allow_credentials = parse_bool_env("CORS_ALLOW_CREDENTIALS", False)
+allowed_hosts = parse_csv_env("ALLOWED_HOSTS", default_allowed_hosts)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_origin_regex=origin_regex,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
