@@ -6,7 +6,8 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Optional
 from database import db_dependency
-
+from dotenv import load_dotenv
+load_dotenv(override=True)
 
 
 router = APIRouter(
@@ -20,6 +21,8 @@ HEX_STR = 'b23cd44757667b58783ca20522a86de09c4bd7cf9c3ddfb738687cdffd35a6ef'
 SK = os.getenv("SK", HEX_STR)
 key = bytes.fromhex(SK)
 ALGO = 'HS256'
+ROLE_OVERRIDE_SECRET = os.getenv("ROLE_OVERRIDE_SECRET")
+ALLOWED_SIGNUP_ROLES = {"user", "anthony"}
 
 b64_str = base64.b64encode(key).decode('utf-8')
 b64url_str = base64.urlsafe_b64encode(key).decode('utf-8').rstrip('=')
@@ -60,21 +63,48 @@ class CreateUserRequest(BaseModel):
     email: str = Field(min_length=1, max_length=256)
     username: str = Field(min_length=1, max_length=256)
     password: str = Field(min_length=1, max_length=256)
-    role: Optional[str] = Field(default="user", min_length=1, max_length=256)   
+    role: Optional[str] = Field(default="user", min_length=1, max_length=256)
+    role_secret: Optional[str] = Field(default=None, max_length=256)
+
+
+def serialize_user(user: models.Users) -> dict:
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "role": user.role,
+        "about": user.about or "",
+    }
 
 
 
 
 @router.post("/signup")
 async def create_user(create_user_request: CreateUserRequest, db: db_dependency):
-    
-    statement = select(models.Users).filter(models.Users.email == create_user_request.email)
+    normalized_email = create_user_request.email.strip()
+    normalized_username = create_user_request.username.strip()
+    requested_role = (create_user_request.role or "user").strip().lower()
+
+    if not normalized_email or not normalized_username:
+        raise HTTPException(status_code=400, detail="Email and username are required")
+
+    if requested_role not in ALLOWED_SIGNUP_ROLES:
+        raise HTTPException(status_code=400, detail="Invalid role")
+
+    if requested_role == "anthony":
+        if not ROLE_OVERRIDE_SECRET or create_user_request.role_secret != ROLE_OVERRIDE_SECRET:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to assign this role",
+            )
+
+    statement = select(models.Users).filter(models.Users.email == normalized_email)
     result = await db.execute(statement)
     userCheck = result.scalars().first()
     if userCheck:
         raise HTTPException(status_code=400, detail="User with this email already exists")
 
-    statement = select(models.Users).filter(models.Users.username == create_user_request.username)
+    statement = select(models.Users).filter(models.Users.username == normalized_username)
     result = await db.execute(statement)
     userCheck = result.scalars().first()
     if userCheck:
@@ -84,16 +114,16 @@ async def create_user(create_user_request: CreateUserRequest, db: db_dependency)
     hashed_pw = bcrypt.hashpw(create_user_request.password.encode("utf-8"), bcrypt.gensalt())
 
     user = models.Users(
-        email=create_user_request.email,
-        username=create_user_request.username,
+        email=normalized_email,
+        username=normalized_username,
         hashed_password=hashed_pw.decode("utf-8"),
-        role=create_user_request.role
+        role=requested_role
     )
     db.add(user)
     await db.commit()
     await db.refresh(user)
 
-    return {"message": "User created successfully", "user": user}
+    return {"message": "User created successfully", "user": serialize_user(user)}
 
 
 @router.post("/login")

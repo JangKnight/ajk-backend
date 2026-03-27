@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text
 
 class Users(Base):
     __tablename__ = "users"
@@ -9,6 +9,7 @@ class Users(Base):
     username = Column(String, unique=True)
     hashed_password = Column(String)
     role = Column(String)
+    about = Column(Text, nullable=True, default="")
 
 
 class Posts(Base):
@@ -20,4 +21,12 @@ class Posts(Base):
     published = Column(Boolean, default=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, default=None)
 
+
+class Notes(Base):
+    __tablename__ = "notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=True)
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 

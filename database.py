@@ -10,6 +10,12 @@ from fastapi import FastAPI, Depends, HTTPException
 DATABASE_URL = os.getenv(
     "DATABASE_URL"
 )
+AUTO_CREATE_TABLES = os.getenv("AUTO_CREATE_TABLES", "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is not set")    
@@ -29,6 +35,9 @@ class Base(DeclarativeBase):
     pass
 
 async def init_db():
+    if not AUTO_CREATE_TABLES:
+        return
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -37,4 +46,3 @@ async def get_db():
         yield session
 
 db_dependency = Annotated[AsyncSession, Depends(get_db)]
-
