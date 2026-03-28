@@ -52,6 +52,7 @@ default_cors_origins = ",".join(
         "http://192.168.1.229",
         "https://localhost",
         "https://192.168.1.229",
+        "https://api.anthonysjhenry.dev"
         "https://anthonysjhenry.vercel.app",
     ]
 )
@@ -60,7 +61,7 @@ default_allowed_hosts = ",".join(
         "localhost",
         "127.0.0.1",
         "192.168.1.229",
-        "ajk-backend.onrender.com",
+        "*anthonysjhenry*",
         "*.onrender.com",
     ]
 )
