@@ -52,8 +52,9 @@ default_cors_origins = ",".join(
         "http://192.168.1.229",
         "https://localhost",
         "https://192.168.1.229",
-        "https://api.anthonysjhenry.dev"
+        "https://api.anthonysjhenry.dev",
         "https://anthonysjhenry.vercel.app",
+        "https://www.anthonysjhenry.dev"
     ]
 )
 default_allowed_hosts = ",".join(

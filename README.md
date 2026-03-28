@@ -10,5 +10,5 @@ FastAPI-based backend currently undergoing migration of APIs and databases to im
 
 Interactive API documentation available at:
 
-- **Swagger UI**: https://ajk-backend.onrender.com/docs
-- **ReDoc**: https://ajk-backend.onrender.com/redoc
+- **Swagger UI**: https://api.anthonysjhenry.dev/docs
+- **ReDoc**: https://api.anthonysjhenry.dev/redoc
