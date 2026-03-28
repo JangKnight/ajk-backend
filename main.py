@@ -41,27 +41,12 @@ app = FastAPI(
 # -----Configs-----
 default_cors_origins = ",".join(
     [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://192.168.1.229:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://192.168.1.229:3000",
-        "http://localhost",
-        "http://127.0.0.1",
-        "http://192.168.1.229",
-        "https://localhost",
-        "https://192.168.1.229",
-        "https://api.anthonysjhenry.dev",
         "https://anthonysjhenry.vercel.app",
         "https://www.anthonysjhenry.dev"
     ]
 )
 default_allowed_hosts = ",".join(
     [
-        "localhost",
-        "127.0.0.1",
-        "192.168.1.229",
         "*.anthonysjhenry.dev",
         "*.onrender.com",
     ]
