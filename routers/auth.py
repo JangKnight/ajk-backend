@@ -17,8 +17,7 @@ router = APIRouter(
 oauth = security.OAuth2PasswordRequestForm
 bearer = security.OAuth2PasswordBearer(tokenUrl='/auth/token')
 # openssl rand -hex 32
-HEX_STR = 'b23cd44757667b58783ca20522a86de09c4bd7cf9c3ddfb738687cdffd35a6ef'
-SK = os.getenv("SK", HEX_STR)
+SK = os.getenv("SK")
 key = bytes.fromhex(SK)
 ALGO = 'HS256'
 ROLE_OVERRIDE_SECRET = os.getenv("ROLE_OVERRIDE_SECRET")
